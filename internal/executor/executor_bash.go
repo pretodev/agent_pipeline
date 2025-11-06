@@ -1,11 +1,14 @@
 package executor
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
+	"strings"
 
 	"github.com/pretodev/agent_pipeline/internal/pipeline"
 )
@@ -69,10 +72,27 @@ func (t *bashexec) Execute(env *pipeline.Environment) error {
 	}
 
 	if stdout.Len() > 0 {
-		fmt.Print(stdout.String())
+		t.processOutput(stdout.String(), env)
 	}
 
 	return nil
+}
+
+func (t *bashexec) processOutput(output string, env *pipeline.Environment) {
+	setVarPattern := regexp.MustCompile(`^#\[setVariable '([^']+)';](.*)$`)
+	scanner := bufio.NewScanner(strings.NewReader(output))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if matches := setVarPattern.FindStringSubmatch(line); matches != nil {
+			varName := matches[1]
+			varValue := matches[2]
+			if env != nil {
+				env.Set(varName, varValue)
+			}
+			continue
+		}
+		fmt.Println(line)
+	}
 }
 
 func (t *bashexec) Parse(task pipeline.Task) error {

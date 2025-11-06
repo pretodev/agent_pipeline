@@ -7,8 +7,9 @@ tasks:
       - git
     source: |
       echo "Check if git project"
-      if [ -d ".git" ]; then
-        return 0
+      if [ ! -d ".git" ]; then
+        echo "Not a git project"
+        exit 1
       fi
 
       echo "Get branch name"
