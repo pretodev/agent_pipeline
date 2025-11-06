@@ -11,29 +11,28 @@ import (
 func main() {
 	p, err := pipeline.ParseFile("./example/helloworld.yaml")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintf(os.Stderr, "Error parsing pipeline: %v\n", err)
 		os.Exit(1)
-		return
 	}
 
 	if len(p.Tasks) == 0 {
-		os.Exit(0)
 		return
 	}
 
 	for _, task := range p.Tasks {
 		fmt.Println(task.Name)
+
 		executor := script.Bash()
 		if err := executor.Parse(task); err != nil {
-			fmt.Println(err)
+			fmt.Fprintf(os.Stderr, "Error parsing task: %v\n", err)
 			os.Exit(1)
-			return
 		}
+
 		fmt.Println(executor)
+
 		if err := executor.Execute(); err != nil {
-			fmt.Println(err)
+			fmt.Fprintf(os.Stderr, "Error executing task: %v\n", err)
 			os.Exit(1)
-			return
 		}
 	}
 }
