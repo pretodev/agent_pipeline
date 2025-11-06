@@ -8,5 +8,6 @@ type Task struct {
 }
 
 type TaskExecutor interface {
-	Execute(task Task) error
+	Parse(task Task) error
+	Execute() error
 }
