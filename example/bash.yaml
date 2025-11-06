@@ -1,0 +1,23 @@
+description: Script Bash Example
+
+tasks:
+  - task: script.bash
+    pwd: ${PROJECT_PATH}
+    commands:
+      - git
+    source: |
+      echo "Check if git project"
+      if [ -d ".git" ]; then
+        return 0
+      fi
+
+      echo "Get branch name"
+      branch=$(git branch --show-current)
+      echo "Branch name: $branch"
+
+      branchName=$(echo $branch | tr '/' '_')
+      echo "$[setVariable name='branchName';]$branchName"
+
+  - task: script.bash
+    source: |
+      echo "Branch name: $branchName"

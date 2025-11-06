@@ -1,0 +1,23 @@
+description: Get the latest news from the web
+
+tasks:
+  - task: http.get
+    var: fetchNews
+    displayName: Fetching news
+    url: https://newsapi.org/v2/everything
+    queries:
+      - q: 'Salvador, Bahia, Brasil'
+      - sortBy: publishedAt
+      - language: pt
+      - apiKey: ${NEWS_API_KEY}
+    response:
+      - format: json
+
+  - task: agent.chat
+    displayName: Summarizing news
+    model: gpt-4o-mini
+    messages:
+      - role: user
+        content: |
+          Summarize the following news:
+          ${fetchNews.response.body}
