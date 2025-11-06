@@ -1,4 +1,4 @@
-package script
+package executor
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/pretodev/agent_pipeline/internal/task"
+	"github.com/pretodev/agent_pipeline/internal/pipeline"
 )
 
 const (
@@ -41,13 +41,21 @@ func (t *bashexec) String() string {
 	return fmt.Sprintf("PWD: %s\n", t.pwd)
 }
 
-func (t *bashexec) Execute() error {
+func (t *bashexec) Execute(env *pipeline.Environment) error {
 	if t.source == "" {
 		return ErrNotParsed
 	}
 
 	cmd := exec.Command("bash", "-c", t.source)
 	cmd.Dir = t.pwd
+
+	if env != nil {
+		envVars := os.Environ()
+		for key, value := range env.GetAll() {
+			envVars = append(envVars, fmt.Sprintf("%s=%s", key, value))
+		}
+		cmd.Env = envVars
+	}
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -67,7 +75,7 @@ func (t *bashexec) Execute() error {
 	return nil
 }
 
-func (t *bashexec) Parse(task task.Task) error {
+func (t *bashexec) Parse(task pipeline.Task) error {
 	if err := t.parsePwd(task.Options); err != nil {
 		return err
 	}

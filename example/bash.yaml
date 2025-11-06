@@ -15,9 +15,9 @@ tasks:
       branch=$(git branch --show-current)
       echo "Branch name: $branch"
 
-      branchName=$(echo $branch | tr '/' '_')
-      echo "$[setVariable name='branchName';]$branchName"
+      BRANCH_NAME=$(echo $branch | tr '/' '_')
+      echo "#[setVariable 'BRANCH_NAME';]$BRANCH_NAME"
 
   - task: script.bash
     source: |
-      echo "Branch name: $branchName"
+      echo "Branch name: $BRANCH_NAME"

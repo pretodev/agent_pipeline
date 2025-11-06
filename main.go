@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pretodev/agent_pipeline/internal/executor"
 	"github.com/pretodev/agent_pipeline/internal/pipeline"
-	"github.com/pretodev/agent_pipeline/internal/task/script"
 )
 
 func main() {
-	p, err := pipeline.ParseFile("./example/helloworld.yaml")
+	p, err := pipeline.ParseFile("./example/bash.yaml")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing pipeline: %v\n", err)
 		os.Exit(1)
@@ -22,7 +22,8 @@ func main() {
 	for _, task := range p.Tasks {
 		fmt.Println(task.Name)
 
-		executor := script.Bash()
+		executor := executor.Bash()
+
 		if err := executor.Parse(task); err != nil {
 			fmt.Fprintf(os.Stderr, "Error parsing task: %v\n", err)
 			os.Exit(1)
@@ -30,7 +31,7 @@ func main() {
 
 		fmt.Println(executor)
 
-		if err := executor.Execute(); err != nil {
+		if err := executor.Execute(p.Environment); err != nil {
 			fmt.Fprintf(os.Stderr, "Error executing task: %v\n", err)
 			os.Exit(1)
 		}

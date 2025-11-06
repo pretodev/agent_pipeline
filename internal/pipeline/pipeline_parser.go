@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pretodev/agent_pipeline/internal/task"
 	"gopkg.in/yaml.v3"
 )
 
@@ -31,7 +30,10 @@ func ParseFile(filePath string) (*Pipeline, error) {
 		return nil, ErrEmptyTasks
 	}
 
-	tasks := make([]task.Task, 0, len(pipelineData.Tasks))
+	env := NewEnvironment()
+	env.LoadFromOS()
+
+	tasks := make([]Task, 0, len(pipelineData.Tasks))
 	for i, taskData := range pipelineData.Tasks {
 		taskName, ok := taskData["task"].(string)
 		if !ok || taskName == "" {
@@ -41,17 +43,17 @@ func ParseFile(filePath string) (*Pipeline, error) {
 		options := make(map[string]any)
 		for key, value := range taskData {
 			if key != "task" && key != "description" && key != "var" {
-				options[key] = value
+				options[key] = env.ExpandValue(value)
 			}
 		}
 
-		t := task.Task{
+		t := Task{
 			Name:    taskName,
 			Options: options,
 		}
 
 		if desc, ok := taskData["description"].(string); ok {
-			t.Description = desc
+			t.Description = env.ExpandString(desc)
 		}
 
 		if varName, ok := taskData["var"].(string); ok {
@@ -64,5 +66,6 @@ func ParseFile(filePath string) (*Pipeline, error) {
 	return &Pipeline{
 		Description: pipelineData.Description,
 		Tasks:       tasks,
+		Environment: env,
 	}, nil
 }

@@ -2,8 +2,6 @@ package pipeline
 
 import (
 	"errors"
-
-	"github.com/pretodev/agent_pipeline/internal/task"
 )
 
 var (
@@ -15,5 +13,13 @@ var (
 
 type Pipeline struct {
 	Description string
-	Tasks       []task.Task
+	Tasks       []Task
+	Environment *Environment
+}
+
+type Task struct {
+	Name        string
+	Description string
+	Var         string
+	Options     map[string]any
 }
