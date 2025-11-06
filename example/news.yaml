@@ -3,7 +3,7 @@ description: Get the latest news from the web
 tasks:
   - task: http.get
     var: fetchNews
-    displayName: Fetching news
+    description: Fetching news
     url: https://newsapi.org/v2/everything
     queries:
       - q: 'Salvador, Bahia, Brasil'

@@ -1,4 +1,4 @@
 tasks:
-  - task: bash
+  - task: script.bash
     script: |
       echo "Hello, world!"
