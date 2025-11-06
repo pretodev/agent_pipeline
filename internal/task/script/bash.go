@@ -24,17 +24,25 @@ var (
 	ErrSourceRequired      = errors.New("source is required")
 )
 
-type BashTaskExecutor struct {
+type bashexec struct {
 	pwd      string
 	commands []string
 	source   string
 }
 
-func (t *BashTaskExecutor) Execute() error {
+func Bash() *bashexec {
+	return &bashexec{}
+}
+
+func (t *bashexec) String() string {
+	return fmt.Sprintf("PWD: %s\n", t.pwd)
+}
+
+func (t *bashexec) Execute() error {
 	return nil
 }
 
-func (t *BashTaskExecutor) Parse(task task.Task) error {
+func (t *bashexec) Parse(task task.Task) error {
 	if err := t.parsePwd(task.Options); err != nil {
 		return err
 	}
@@ -50,7 +58,7 @@ func (t *BashTaskExecutor) Parse(task task.Task) error {
 	return nil
 }
 
-func (t *BashTaskExecutor) parsePwd(options map[string]any) error {
+func (t *bashexec) parsePwd(options map[string]any) error {
 	if pwd, ok := options[pwdKey]; ok {
 		pwdStr, ok := pwd.(string)
 		if !ok {
@@ -82,7 +90,7 @@ func (t *BashTaskExecutor) parsePwd(options map[string]any) error {
 	return nil
 }
 
-func (t *BashTaskExecutor) parseCommands(options map[string]any) error {
+func (t *bashexec) parseCommands(options map[string]any) error {
 	if commands, ok := options[commandsKey]; ok {
 		commandsList, ok := commands.([]interface{})
 		if !ok {
@@ -107,7 +115,7 @@ func (t *BashTaskExecutor) parseCommands(options map[string]any) error {
 	return nil
 }
 
-func (t *BashTaskExecutor) parseSource(options map[string]any) error {
+func (t *bashexec) parseSource(options map[string]any) error {
 	source, ok := options[sourceKey]
 	if !ok {
 		return ErrSourceRequired

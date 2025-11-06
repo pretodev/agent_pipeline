@@ -10,4 +10,5 @@ type Task struct {
 type TaskExecutor interface {
 	Parse(task Task) error
 	Execute() error
+	String() string
 }
