@@ -1,6 +1,7 @@
 package script
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -22,6 +23,8 @@ var (
 	ErrCommandNotFound     = errors.New("command not found in PATH")
 	ErrInvalidSourceType   = errors.New("source must be a string")
 	ErrSourceRequired      = errors.New("source is required")
+	ErrScriptExecution     = errors.New("script execution failed")
+	ErrNotParsed           = errors.New("executor not parsed, call Parse before Execute")
 )
 
 type bashexec struct {
@@ -39,6 +42,28 @@ func (t *bashexec) String() string {
 }
 
 func (t *bashexec) Execute() error {
+	if t.source == "" {
+		return ErrNotParsed
+	}
+
+	cmd := exec.Command("bash", "-c", t.source)
+	cmd.Dir = t.pwd
+
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		if stderr.Len() > 0 {
+			return fmt.Errorf("%w: %s", ErrScriptExecution, stderr.String())
+		}
+		return fmt.Errorf("%w: %v", ErrScriptExecution, err)
+	}
+
+	if stdout.Len() > 0 {
+		fmt.Print(stdout.String())
+	}
+
 	return nil
 }
 

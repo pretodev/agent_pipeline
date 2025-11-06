@@ -30,5 +30,10 @@ func main() {
 			return
 		}
 		fmt.Println(executor)
+		if err := executor.Execute(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+			return
+		}
 	}
 }
